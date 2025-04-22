@@ -31,22 +31,13 @@ if (process.env.NODE_ENV === "production") {
     const staticPath = path.join(__dirname, "../frontend/dist");
     if (fs.existsSync(staticPath)) {
         app.use(express.static(staticPath));
-        // Use a specific route instead of wildcard to avoid path-to-regexp issues
-        app.get("/", (req, res) => {
+        // Serve index.html directly for all non-API routes
+        app.get("*", (req, res) => {
             const indexPath = path.join(staticPath, "index.html");
             if (fs.existsSync(indexPath)) {
                 res.sendFile(indexPath);
             } else {
-                res.status(500).send("Frontend index.html missing");
-            }
-        });
-        // Fallback for client-side routing
-        app.get("/app/*", (req, res) => {
-            const indexPath = path.join(staticPath, "index.html");
-            if (fs.existsSync(indexPath)) {
-                res.sendFile(indexPath);
-            } else {
-                res.status(500).send("Frontend index.html missing");
+                res.status(500).send("Frontend index.html not found");
             }
         });
     } else {
